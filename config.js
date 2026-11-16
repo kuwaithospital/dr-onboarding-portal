@@ -3,15 +3,20 @@
    Nothing here is secret: all checks run in Power Automate and Entra ID. */
 window.KH_CONFIG = {
 
-  /* Power Automate "When an HTTP request is received" URLs (filled in later) */
+  /* Power Automate "When an HTTP request is received" URLs
+     (open each flow → click the trigger → copy HTTP URL) */
   flows: {
-    requestCode: "",   // PO-2 Request code
-    verifyCode:  "",   // PO-3 Verify code
-    submit:      ""    // PO-4 Submit form
+    requestCode: "PASTE-PO-2-HTTP-URL-HERE",   // PO-2 Request code
+    verifyCode:  "",                           // PO-3 Verify code  (next)
+    submit:      ""                            // PO-4 Submit form  (after PO-3)
   },
 
-  /* Largest file a doctor can upload, in MB */
+  /* Largest single file a doctor can upload, in MB */
   maxFileMB: 10,
+
+  /* Largest total of all files in one submission, in MB
+     (Power Automate accepts about 100 MB per request) */
+  maxTotalMB: 70,
 
   /* Staff page sign-in (Entra ID app "KH Physician Onboarding Portal") */
   msal: {
