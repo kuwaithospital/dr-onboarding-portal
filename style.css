@@ -211,3 +211,8 @@ select{font:inherit;font-size:16px;color:var(--ink);background:var(--field);bord
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px;align-items:start}
 @media(max-width:600px){.pair{grid-template-columns:minmax(0,1fr)}}
+/* sticky bar: centred title */
+.sbar .in{justify-content:center;position:static}
+.sbar{display:block}
+.sbar .who{position:absolute;right:24px;top:50%;transform:translateY(-50%);margin-left:0;max-width:30%}
+@media(max-width:900px){.sbar .who{display:none}}
