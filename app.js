@@ -246,6 +246,6 @@ function showDone(d, ref) {
 
 /* ---------- sticky title bar ---------- */
 const bar = $('#sbar'), cov = $('header.cover');
-const onScroll = () => { const show = cov.getBoundingClientRect().bottom < 70; bar.classList.toggle('show', show); bar.setAttribute('aria-hidden', show ? 'false' : 'true'); document.body.classList.toggle('sb-on', show); };
+const onScroll = () => { const t = cov.querySelector('.top') || cov; const show = t.getBoundingClientRect().bottom < 8; bar.classList.toggle('show', show); bar.setAttribute('aria-hidden', show ? 'false' : 'true'); document.body.classList.toggle('sb-on', show); };
 window.addEventListener('scroll', onScroll, {passive:true}); window.addEventListener('resize', onScroll); onScroll();
 }

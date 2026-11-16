@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261116f">
+<link rel="stylesheet" href="style.css?v=20261116g">
 <style>
 main.wide{max-width:1000px}
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -70,12 +70,12 @@ main.wide{max-width:1000px}
  </div>
 </main>
 <footer>Kuwait Hospital · مستشفى الكويت</footer>
-<script src="config.js?v=20261116f"></script>
+<script src="config.js?v=20261116g"></script>
 <script src="vendor/msal-browser.min.js"></script>
-<script src="hr.js?v=20261116f"></script>
+<script src="hr.js?v=20261116g"></script>
 <script>
 (function(){var bar=document.getElementById('sbar'),cov=document.querySelector('header.cover');
-function f(){var show=cov.getBoundingClientRect().bottom<70;bar.classList.toggle('show',show);bar.setAttribute('aria-hidden',show?'false':'true');}
+function f(){var t=cov.querySelector('.top')||cov;var show=t.getBoundingClientRect().bottom<8;bar.classList.toggle('show',show);bar.setAttribute('aria-hidden',show?'false':'true');}
 window.addEventListener('scroll',f,{passive:true});window.addEventListener('resize',f);f();})();
 </script>
 </body>

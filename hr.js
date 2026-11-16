@@ -59,7 +59,7 @@ async function start() {
   if (!role) { showErr($('#sErr'), 'You are signed in, but your account has no role on this page. Please ask IT to assign you the HR or Viewer role.'); return; }
   $('#sLogin').style.display = 'none'; $('#sApp').style.display = '';
   const name = account.name || account.username;
-  $('#meAv').textContent = ini(name); $('#meN').textContent = name; $('#meE').textContent = account.username; $('#meR').textContent = role;
+  $('#meAv').textContent = ini(name); $('#meN').textContent = name; $('#meE').textContent = account.username; $('#meR').textContent = role; const sbw = $('#sbWho'); if (sbw) sbw.textContent = name + ' · ' + role;
   $('#entraLink').style.display = role === 'Admin' ? '' : 'none';
   $('#fInv').style.display = role === 'Viewer' ? 'none' : '';
   await load();
