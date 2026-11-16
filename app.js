@@ -126,7 +126,7 @@ $('#fCode').addEventListener('submit', async e => {
 
 /* ---------- step 3: the form ---------- */
 const f = $('#f');
-const store = {licence:[], certificates:[], resume:[], patientContacts:[]};
+const store = {licence:[], goodStanding:[], education:[], certificates:[], experience:[], resume:[], patientContacts:[]};
 const extOK = {word:/\.(docx?|rtf)$/i, pdf:/\.pdf$/i, image:/\.(png|jpe?g|gif|bmp|webp|heic|tiff?)$/i};
 const allowed = (name, types) => types === 'any' || types.split(',').some(t => extOK[t].test(name));
 const size = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
@@ -186,8 +186,9 @@ const pack = async k => Promise.all(store[k].map(async x => ({name:x.name, type:
 f.addEventListener('submit', async e => {
   e.preventDefault();
   const er = $('#subErr'); hideErr(er);
-  const bad = reqs.filter(q => !filled(q));
+  const bad = reqs.filter(q => !filled(q)).concat($$('.q[data-pattern]').filter(q => { const x = q.querySelector('input').value.trim(); return x && !new RegExp(q.dataset.pattern).test(x); }));
   reqs.forEach(q => q.classList.toggle('bad', bad.includes(q)));
+  $$('.q[data-pattern]').forEach(q => { if (bad.includes(q)) q.classList.add('bad'); });
   if (bad.length) { bad[0].scrollIntoView({behavior:'smooth', block:'center'}); const el = bad[0].querySelector('input,textarea'); el && el.focus({preventScroll:true}); return; }
   const v = n => (f.elements[n].value || '').trim();
   const data = {
@@ -195,13 +196,16 @@ f.addEventListener('submit', async e => {
     designation: f.querySelector('input[name=designation]:checked').value,
     yearsExperience: +v('yearsExperience'), qualifications: v('qualifications'),
     keyServices: v('keyServices'), symptoms: v('symptoms'), minPatientAge: +v('minPatientAge'),
+    civilId: v('civilId'), passportNumber: v('passportNumber').toUpperCase(),
     languages: v('languages'), socialMedia: v('socialMedia'),
     top3Services: [v('top1'), v('top2'), v('top3')]
   };
+  const totalMB = Object.values(store).flat().reduce((t, x) => t + x.size, 0) / 1048576, MAX_TOTAL = CFG.maxTotalMB || 70;
+  if (totalMB > MAX_TOTAL) { showErr(er, `Your files add up to ${totalMB.toFixed(0)} MB; the limit for one submission is ${MAX_TOTAL} MB. Please use smaller files, for example compressed PDFs.`); return; }
   const btn = $('#go'); busy(btn, true); $('#goT').textContent = 'Uploading, please wait…';
   let res;
   try {
-    const body = {token, ...data, licence: await pack('licence'), certificates: await pack('certificates'), resume: await pack('resume'), patientContacts: await pack('patientContacts')};
+    const body = {token, ...data, licence: await pack('licence'), goodStanding: await pack('goodStanding'), education: await pack('education'), certificates: await pack('certificates'), experience: await pack('experience'), resume: await pack('resume'), patientContacts: await pack('patientContacts')};
     res = await post(FLOWS.submit, body);
   } catch (err) {
     busy(btn, false); $('#goT').textContent = 'Submit onboarding form';
@@ -220,9 +224,11 @@ f.addEventListener('submit', async e => {
 function showDone(d, ref) {
   const fl = k => store[k].length ? store[k].map(x => x.name).join('\n') : '—';
   const rows = [['Name (English)', d.fullNameEn], ['Name (Arabic)', d.fullNameAr], ['Specialty', d.specialty], ['Designation', d.designation],
+    ['Civil ID number', d.civilId || '—'], ['Passport number', d.passportNumber],
     ['Years of experience', d.yearsExperience], ['Minimum patient age', d.minPatientAge === 0 ? 'All ages' : d.minPatientAge + ' years'],
     ['Languages', d.languages], ['Top 3 services', d.top3Services.join(' · ')],
-    ['Medical licence', fl('licence')], ['Certificates', fl('certificates')], ['Resume / CV', fl('resume')], ['Patient contacts', fl('patientContacts')]];
+    ['Medical licence', fl('licence')], ['Good Standing', fl('goodStanding')], 
+    ['Educational documents', fl('education')], ['Certificates', fl('certificates')], ['Experience letters', fl('experience')], ['Resume / CV', fl('resume')], ['Patient contacts', fl('patientContacts')]];
   $('#sum').innerHTML = rows.map(([a, b]) => `<div><dt>${a}</dt><dd ${a.includes('Arabic') ? 'lang="ar" dir="rtl" style="text-align:left"' : ''}>${esc(b)}</dd></div>`).join('');
   $('#ref').textContent = ref ? 'Reference ' + ref : '';
   $('#ref').style.display = ref ? '' : 'none';

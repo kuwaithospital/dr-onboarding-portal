@@ -98,6 +98,28 @@
      <strong>Upload file</strong><small>1 file · up to 10 MB · Word, PDF or image</small></div>
     <ul class="files"></ul><div class="msg"></div>
    </div>
+   <div class="q" data-req data-file="goodStanding" data-max="2" data-types="word,pdf,image" data-msg="Please upload your Certificate of Good Standing.">
+    <div class="lbl">Certificate of Good Standing<span class="req">*</span></div>
+    <p class="hint">Issued by the Ministry of Health (MOH) or the Kuwait Medical Association (KMA).</p>
+    <div class="drop"><input type="file" id="goodStanding" multiple accept=".pdf,.doc,.docx,image/*" aria-label="Upload Certificate of Good Standing">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload files</strong><small>Up to 2 files · 10 MB each · Word, PDF or image</small></div>
+    <ul class="files"></ul><div class="msg">Please upload your Certificate of Good Standing.</div>
+   </div>
+   <div class="pair">
+   <div class="q" data-pattern="^[0-9]{12}$">
+    <label for="civilId">Civil ID number <span class="opt">(optional)</span></label>
+    <p class="hint">12 digits. Not applicable for overseas doctors.</p>
+    <input type="text" id="civilId" name="civilId" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="12-digit Civil ID number">
+    <div class="msg">Civil ID number must be exactly 12 digits.</div>
+   </div>
+   <div class="q" data-req data-pattern="^[A-Za-z0-9]{5,15}$">
+    <label for="passportNo">Passport number<span class="req">*</span></label>
+    <p class="hint">As shown on your passport photo page.</p>
+    <input type="text" id="passportNo" name="passportNumber" maxlength="15" autocomplete="off" placeholder="e.g. A12345678">
+    <div class="msg">Use letters and numbers only (5–15).</div>
+   </div>
+   </div>
   </div>
  </section>
 
@@ -115,12 +137,28 @@
     <textarea id="qual" name="qualifications" placeholder="MBBS – Kuwait University, 2008&#10;Arab Board of Internal Medicine, 2014&#10;Fellowship in Cardiology – …"></textarea>
     <div class="msg">Please list your qualifications.</div>
    </div>
+   <div class="q" data-req data-file="education" data-max="10" data-types="word,pdf,image" data-msg="Please upload your educational documents.">
+    <div class="lbl">Educational documents<span class="req">*</span></div>
+    <p class="hint">Degree certificates, starting from and including your Bachelor's degree.</p>
+    <div class="drop"><input type="file" id="education" multiple accept=".pdf,.doc,.docx,image/*" aria-label="Upload Educational documents">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload files</strong><small>Up to 10 files · 10 MB each · Word, PDF or image</small></div>
+    <ul class="files"></ul><div class="msg">Please upload your educational documents.</div>
+   </div>
    <div class="q" data-req data-file="certificates" data-max="10" data-types="any" data-msg="Please upload at least one certificate.">
     <div class="lbl">Certificates and board certificates<span class="req">*</span></div>
     <div class="drop"><input type="file" id="certificates" multiple aria-label="Upload certificates">
      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
      <strong>Upload files</strong><small>Up to 10 files · 10 MB each · Word, Excel, PPT, PDF, image, video, audio</small></div>
     <ul class="files"></ul><div class="msg">Please upload at least one certificate.</div>
+   </div>
+   <div class="q" data-req data-file="experience" data-max="10" data-types="word,pdf,image" data-msg="Please upload at least one experience letter.">
+    <div class="lbl">Experience letters<span class="req">*</span></div>
+    <p class="hint">Letters from your previous employers confirming your positions and dates.</p>
+    <div class="drop"><input type="file" id="experience" multiple accept=".pdf,.doc,.docx,image/*" aria-label="Upload Experience letters">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload files</strong><small>Up to 10 files · 10 MB each · Word, PDF or image</small></div>
+    <ul class="files"></ul><div class="msg">Please upload at least one experience letter.</div>
    </div>
    <div class="q" data-req data-file="resume" data-max="1" data-types="word,pdf" data-msg="Please upload your resume (CV).">
     <div class="lbl">Resume / CV<span class="req">*</span></div>
