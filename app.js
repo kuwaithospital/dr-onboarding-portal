@@ -206,7 +206,10 @@ f.addEventListener('submit', async e => {
   const btn = $('#go'); busy(btn, true); $('#goT').textContent = 'Uploading, please wait…';
   let res;
   try {
-    const body = {token, ...data, licence: await pack('licence'), goodStanding: await pack('goodStanding'), education: await pack('education'), certificates: await pack('certificates'), experience: await pack('experience'), resume: await pack('resume'), patientContacts: await pack('patientContacts')};
+    const FOLDERS = {licence:'Licence', goodStanding:'Good Standing', education:'Education', certificates:'Certificates', experience:'Experience', resume:'Resume', patientContacts:'Patient Contacts'};
+    const files = [];
+    for (const k of Object.keys(FOLDERS)) (await pack(k)).forEach(x => files.push({folder: FOLDERS[k], ...x}));
+    const body = {token, ...data, top3Services: data.top3Services.filter(Boolean).join('; '), files};
     res = await post(FLOWS.submit, body);
   } catch (err) {
     busy(btn, false); $('#goT').textContent = 'Submit onboarding form';
