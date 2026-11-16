@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261116g">
+<link rel="stylesheet" href="style.css?v=20261117d">
 <style>
 main.wide{max-width:1000px}
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -20,21 +20,35 @@ main.wide{max-width:1000px}
 .loading{padding:28px 22px;color:var(--muted);text-align:center}
 </style>
 </head>
-<body>
-<div class="sbar" id="sbar" aria-hidden="true"><div class="in"><img src="logo-white.png" alt=""><span class="sep"></span><b>Onboarding staff page</b><span class="ar" lang="ar" dir="rtl">تسجيل الأطباء الجدد – صفحة الموظفين</span><span class="who" id="sbWho"></span></div></div>
-<header class="cover">
+<body class="staff">
+<header class="cover hdr" id="hdr">
  <div class="top">
   <img src="logo-white.png" alt="Kuwait Hospital">
   <div class="sep"></div>
-  <div>
+  <div class="ttl">
    <h1>Onboarding staff page</h1>
    <div class="ar" lang="ar" dir="rtl">تسجيل الأطباء الجدد – صفحة الموظفين</div>
-   <div class="date" id="today"></div>
+   <div class="date" id="today" hidden></div>
   </div>
+  <div class="clock" id="clock" aria-live="off"><span id="ckD"></span><b id="ckT"></b></div>
  </div>
 </header>
+<div class="band" aria-hidden="true"></div>
 
-<main class="wide">
+<main class="wide three-col">
+<aside class="side" aria-label="Overview and filters">
+ <div class="pnl"><h3>Overview</h3><div class="stats">
+  <div class="stat"><b id="cInv">0</b><span>Total invited</span></div><div class="stat"><b id="cVer">0</b><span>Verified</span></div>
+  <div class="stat okc"><b id="cSub">0</b><span>Submitted</span></div><div class="stat warn"><b id="cLate">0</b><span>No reply 48 h+</span></div></div></div>
+ <div class="pnl"><h3>Filter</h3><div class="flt" id="flt">
+  <button type="button" class="on" data-f="All">All doctors <small id="fAll">0</small></button>
+  <button type="button" data-f="Invited">Invited <small id="fInvited">0</small></button>
+  <button type="button" data-f="Verified">Verified <small id="fVerified">0</small></button>
+  <button type="button" data-f="Submitted">Submitted <small id="fSubmitted">0</small></button>
+  <button type="button" data-f="Late">No reply 48 h+ <small id="fLate">0</small></button></div></div>
+ <div class="pnl lnk"><h3>Quick links</h3><a id="qSub" href="#" target="_blank" rel="noopener">Submissions list</a><a id="qDocs" href="#" target="_blank" rel="noopener">Documents library</a><a id="qAcc" href="https://entra.microsoft.com/#view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/AppAppsPreview" target="_blank" rel="noopener" style="display:none">Manage staff access</a></div>
+</aside>
+<div class="mid">
  <div class="gate" id="sLogin">
   <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M12 13.5V16"/></svg></div>
   <h2>Staff sign-in</h2>
@@ -68,15 +82,15 @@ main.wide{max-width:1000px}
    <div class="hint2">Only emails listed here can receive a code. The invitation email goes out automatically within a minute. "Submitted" doctors can't open the form again.</div>
   </div>
  </div>
+</div>
+<aside class="side det" aria-label="Doctor details">
+ <div class="pnl" id="det"><h3>Doctor details</h3><p class="empty">Click a doctor in the list to see their progress and documents.</p></div>
+</aside>
 </main>
 <footer>Kuwait Hospital · مستشفى الكويت</footer>
-<script src="config.js?v=20261116g"></script>
+<script src="config.js?v=20261117d"></script>
 <script src="vendor/msal-browser.min.js"></script>
-<script src="hr.js?v=20261116g"></script>
-<script>
-(function(){var bar=document.getElementById('sbar'),cov=document.querySelector('header.cover');
-function f(){var t=cov.querySelector('.top')||cov;var show=t.getBoundingClientRect().bottom<8;bar.classList.toggle('show',show);bar.setAttribute('aria-hidden',show?'false':'true');}
-window.addEventListener('scroll',f,{passive:true});window.addEventListener('resize',f);f();})();
-</script>
+<script src="hr.js?v=20261117d"></script>
+<script src="header.js?v=20261117d"></script>
 </body>
 </html>

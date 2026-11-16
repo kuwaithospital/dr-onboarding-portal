@@ -30,6 +30,6 @@ window.KH_CONFIG = {
     host: "kwh.sharepoint.com",
     sitePath: "/sites/PhysicianOnboarding",
     invitees: "Onboarding Invitees",
-    submissions: "Physician Submissions"
+    submissions: "Physician Submissions", documents: "Onboard Physician Documents"
   }
 };

@@ -7,7 +7,7 @@ const M = CFG.msal || {}, SP = CFG.sharepoint || {};
 const SCOPES = ['User.Read', 'Sites.ReadWrite.All'];
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 
-const $ = s => document.querySelector(s);
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const busy = (b, on) => { b.disabled = on; b.classList.toggle('busy', on); };
 const showErr = (el, msg) => { el.innerHTML = msg; el.classList.add('show'); };
@@ -30,7 +30,8 @@ const app = new msal.PublicClientApplication({
   cache: {cacheLocation: 'sessionStorage'}
 });
 
-let account = null, siteId = '', listId = '', items = [], role = '';
+let account = null, siteId = '', listId = '', subId = '', items = [], subs = {}, role = '', filt = 'All', selId = '';
+const DAY = 864e5;
 
 async function token() {
   try { return (await app.acquireTokenSilent({scopes: SCOPES, account})).accessToken; }
@@ -60,7 +61,8 @@ async function start() {
   $('#sLogin').style.display = 'none'; $('#sApp').style.display = '';
   const name = account.name || account.username;
   $('#meAv').textContent = ini(name); $('#meN').textContent = name; $('#meE').textContent = account.username; $('#meR').textContent = role; const sbw = $('#sbWho'); if (sbw) sbw.textContent = name + ' · ' + role;
-  $('#entraLink').style.display = role === 'Admin' ? '' : 'none';
+  $('#entraLink').style.display = role === 'Admin' ? '' : 'none'; $('#qAcc').style.display = role === 'Admin' ? '' : 'none';
+  document.body.classList.add('app-on');
   $('#fInv').style.display = role === 'Viewer' ? 'none' : '';
   await load();
 }
@@ -83,7 +85,33 @@ async function ensureIds() {
     if (!r.value || !r.value.length) throw new Error(`List "${SP.invitees}" not found on the site.`);
     listId = r.value[0].id;
   }
+  if (!subId && SP.submissions) {
+    try {
+      const r = await graph(`/sites/${siteId}/lists?$filter=displayName eq '${SP.submissions.replace(/'/g, "''")}'&$select=id,displayName,webUrl`);
+      if (r.value && r.value.length) { subId = r.value[0].id; $('#qSub').href = r.value[0].webUrl; }
+    } catch (_) { /* no access to submissions: panels still work without details */ }
+  }
 }
+$('#qDocs').href = `https://${SP.host}${SP.sitePath}/${encodeURIComponent(SP.documents || 'Onboard Physician Documents')}`;
+
+async function loadSubs() {
+  subs = {};
+  if (!subId) return;
+  let url = `/sites/${siteId}/lists/${subId}/items?$expand=fields($select=Title,FullNameEn,Specialty,Designation,Reference,SubmittedOn,ReviewStatus,DocumentsFolder)&$top=500`;
+  while (url) {
+    const r = await graph(url);
+    (r.value || []).forEach(i => { const e = (i.fields.Title || '').toLowerCase(); if (e) subs[e] = i; });
+    url = r['@odata.nextLink'] ? r['@odata.nextLink'].replace(GRAPH, '') : '';
+  }
+}
+function stateOf(i) {
+  const f = i.fields, e = (f.Email || '').toLowerCase();
+  if (subs[e] || f.Status === 'Submitted') return 'Submitted';
+  if (f.Status === 'Verified') return 'Verified';
+  const sent = new Date(f.LastInviteSent || i.createdDateTime);
+  return Date.now() - sent > 2 * DAY ? 'Late' : 'Invited';
+}
+const LABEL = {Invited: 'Invited', Verified: 'Verified', Submitted: 'Submitted', Late: 'No reply 48 h+'};
 
 async function load() {
   const L = $('#loading'); L.style.display = ''; L.textContent = 'Loading…';
@@ -97,6 +125,7 @@ async function load() {
       url = r['@odata.nextLink'] ? r['@odata.nextLink'].replace(GRAPH, '') : '';
     }
     items.sort((a, b) => new Date(b.createdDateTime) - new Date(a.createdDateTime));
+    try { await loadSubs(); } catch (_) { subs = {}; }
     L.style.display = 'none';
     render();
   } catch (e) {
@@ -106,14 +135,64 @@ async function load() {
 
 function render() {
   const q = $('#search').value.trim().toLowerCase();
-  const rows = items.filter(i => !q || (i.fields.Title || '').toLowerCase().includes(q) || (i.fields.Email || '').toLowerCase().includes(q));
+  const st = new Map(items.map(i => [i.id, stateOf(i)]));
+  const n = k => items.filter(i => st.get(i.id) === k).length;
+  const c = {All: items.length, Invited: n('Invited'), Verified: n('Verified'), Submitted: n('Submitted'), Late: n('Late')};
+  $('#cInv').textContent = items.length; $('#cVer').textContent = c.Verified; $('#cSub').textContent = c.Submitted; $('#cLate').textContent = c.Late;
+  Object.keys(c).forEach(k => { const el = $('#f' + k); if (el) el.textContent = c[k]; });
+  const rows = items.filter(i => (filt === 'All' || st.get(i.id) === filt) &&
+    (!q || (i.fields.Title || '').toLowerCase().includes(q) || (i.fields.Email || '').toLowerCase().includes(q)));
   $('#count').textContent = `${rows.length} of ${items.length} doctors`;
   $('#invRows').innerHTML = rows.map(i => {
-    const f = i.fields, st = f.Status || 'Invited';
-    const act = (st === 'Submitted' || role === 'Viewer') ? '' : `<button class="rm" style="color:var(--accent)" type="button" data-id="${esc(i.id)}" aria-label="Resend invite to ${esc(f.Email)}">Resend</button>`;
-    return `<tr><td data-l="Doctor">${esc(f.Title)}</td><td data-l="Email">${esc(f.Email)}</td><td data-l="Registered">${fmtD(i.createdDateTime)}</td><td data-l="Status"><span class="st ${esc(st)}">${esc(st)}</span>${f.Reference ? `<br><small style="color:var(--muted)">${esc(f.Reference)}</small>` : ''}</td><td data-l="">${act}</td></tr>`;
+    const f = i.fields, s2 = st.get(i.id), sub = subs[(f.Email || '').toLowerCase()];
+    const ref = (sub && sub.fields.Reference) || f.Reference;
+    const act = (s2 === 'Submitted' || role === 'Viewer') ? '' : `<button class="rm" style="color:var(--accent)" type="button" data-id="${esc(i.id)}" aria-label="Resend invite to ${esc(f.Email)}">Resend</button>`;
+    return `<tr data-row="${esc(i.id)}" class="${i.id === selId ? 'sel' : ''}"><td data-l="Doctor">${esc(f.Title)}</td><td data-l="Email">${esc(f.Email)}</td><td data-l="Registered">${fmtD(i.createdDateTime)}</td><td data-l="Status"><span class="st ${s2}">${LABEL[s2]}</span>${ref ? `<br><small style="color:var(--muted)">${esc(ref)}</small>` : ''}</td><td data-l="">${act}</td></tr>`;
   }).join('') || `<tr><td colspan="5" style="color:var(--muted)">${items.length ? 'No match.' : 'No doctors registered yet.'}</td></tr>`;
+  details();
 }
+
+const fmtDT = s => s ? new Date(s).toLocaleString('en-GB', {day:'numeric', month:'short', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true, timeZone:'Asia/Kuwait'}) : '';
+function details() {
+  const box = $('#det'), i = items.find(x => x.id === selId);
+  if (!i) { box.innerHTML = '<h3>Doctor details</h3><p class="empty">Click a doctor in the list to see their progress and documents.</p>'; return; }
+  const f = i.fields, s2 = stateOf(i), sub = subs[(f.Email || '').toLowerCase()], sf = sub ? sub.fields : {};
+  const sentAt = f.LastInviteSent || i.createdDateTime;
+  const step = (ok, t, d) => `<li class="${ok ? 'ok' : ''}">${t}${d ? `<small>${esc(d)}</small>` : ''}</li>`;
+  const folder = sf.DocumentsFolder && (sf.DocumentsFolder.Url || sf.DocumentsFolder);
+  const rv = sf.ReviewStatus || (sub ? 'New' : '');
+  const next = rv === 'In review' ? 'Complete' : rv === 'Complete' ? '' : 'In review';
+  box.innerHTML = `<h3>Doctor details</h3>
+   <p class="nm">${esc(f.Title)}</p><div class="em">${esc(f.Email)}</div>
+   <ul class="tl">
+    ${step(true, 'Registered', fmtDT(i.createdDateTime))}
+    ${step(true, (f.InviteCount > 1 ? 'Invitation sent again' : 'Invitation sent'), fmtDT(sentAt))}
+    ${step(s2 === 'Verified' || s2 === 'Submitted', 'Email verified', '')}
+    ${step(!!sub, 'Form submitted', fmtDT(sf.SubmittedOn))}
+   </ul>
+   ${sub ? `<div class="kv"><span>Reference</span><b>${esc(sf.Reference || '—')}</b><span>Specialty</span><b>${esc(sf.Specialty || '—')}</b><span>Designation</span><b>${esc(sf.Designation || '—')}</b><span>Review</span><b><span class="st">${esc(rv)}</span></b></div>
+   ${folder ? `<a class="btn" href="${esc(folder)}" target="_blank" rel="noopener">Open documents folder</a>` : ''}
+   ${next && role !== 'Viewer' ? `<button class="btn ghost" type="button" id="rvBtn" data-next="${next}">Mark as ${next.toLowerCase()}</button>` : ''}`
+   : `<p class="empty">${s2 === 'Late' ? 'No reply for more than 48 hours. You can resend the invitation from the list.' : 'The doctor has not submitted the form yet.'}</p>`}`;
+}
+$('#invRows').addEventListener('click', e => {
+  if (e.target.closest('[data-id]')) return;
+  const tr = e.target.closest('tr[data-row]'); if (!tr) return;
+  selId = tr.dataset.row; $$('#invRows tr').forEach(r => r.classList.toggle('sel', r === tr)); details();
+});
+$('#flt').addEventListener('click', e => {
+  const b = e.target.closest('button[data-f]'); if (!b) return;
+  filt = b.dataset.f; $$('#flt button').forEach(x => x.classList.toggle('on', x === b)); render();
+});
+$('#det').addEventListener('click', async e => {
+  const b = e.target.closest('#rvBtn'); if (!b) return;
+  const i = items.find(x => x.id === selId), sub = i && subs[(i.fields.Email || '').toLowerCase()]; if (!sub) return;
+  busy(b, true);
+  try {
+    await graph(`/sites/${siteId}/lists/${subId}/items/${sub.id}/fields`, {method: 'PATCH', body: JSON.stringify({ReviewStatus: b.dataset.next})});
+    sub.fields.ReviewStatus = b.dataset.next; details();
+  } catch (x) { busy(b, false); b.textContent = 'Could not update: ' + x.message; }
+});
 $('#search').addEventListener('input', render);
 $('#refresh').addEventListener('click', load);
 

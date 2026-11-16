@@ -32,6 +32,7 @@ let email = '', token = '', expTimer = null;
 
 function showGate(id) {
   ['#gEmail', '#gCode', '#formWrap'].forEach(s => $(s).style.display = s === id ? '' : 'none');
+  document.body.classList.toggle('form-on', id === '#formWrap');
   window.scrollTo({top: 0});
 }
 
@@ -172,11 +173,30 @@ function filled(q) {
   return el.value.trim() !== '';
 }
 const reqs = $$('.q[data-req]');
+const secs = $$('#f section.card'), stepLis = $$('#steps li'), chkLis = $$('#chk li');
 function update() {
   const n = reqs.filter(filled).length;
   $('#pct').textContent = `${n} of ${reqs.length}`;
   $('#pbar').style.width = (n / reqs.length * 100) + '%';
+  /* side panels (large screens) */
+  $('#pN').textContent = n; $('#pT').textContent = reqs.length; $('#pB').style.width = (n / reqs.length * 100) + '%';
+  let cur = -1;
+  secs.forEach((s, i) => {
+    const r = [...s.querySelectorAll('.q[data-req]')], ok = r.every(filled);
+    if (!ok && cur < 0) cur = i;
+    const li = stepLis[i]; if (!li) return;
+    li.classList.toggle('ok', ok); li.classList.toggle('on', i === cur);
+    li.querySelector('i').textContent = ok ? '✓' : i + 1;
+  });
+  chkLis.forEach(li => {
+    const k = li.dataset.k;
+    const ok = k === 'passport' ? /^[A-Za-z0-9]{5,15}$/.test((f.elements.passportNumber.value || '').trim()) : (store[k] || []).length > 0;
+    li.classList.toggle('ok', ok);
+  });
 }
+stepLis.forEach((li, i) => { li.tabIndex = 0; li.setAttribute('role', 'link');
+  const go = () => secs[i] && secs[i].scrollIntoView({behavior: 'smooth', block: 'start'});
+  li.addEventListener('click', go); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); });
 f.addEventListener('input', e => { const q = e.target.closest('.q'); if (q && filled(q) && !q.dataset.file) q.classList.remove('bad'); update(); });
 f.addEventListener('change', e => { const q = e.target.closest('.q'); if (q && q.dataset.radio && filled(q)) q.classList.remove('bad'); update(); });
 update();
@@ -238,14 +258,11 @@ function showDone(d, ref) {
   $('#ref').style.display = ref ? '' : 'none';
   $('#tyH').textContent = 'Thank you, ' + d.fullNameEn;
   $('#tyMail').textContent = email;
-  $('#sess').style.display = 'none';
+  $('#sess').style.display = 'none'; document.body.classList.remove('form-on');
   const who = $('#sbWho'); if (who) who.textContent = '';
   f.style.display = 'none'; $('.intro').style.display = 'none'; $('#done').style.display = 'block';
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-/* ---------- sticky title bar ---------- */
-const bar = $('#sbar'), cov = $('header.cover');
-const onScroll = () => { const t = cov.querySelector('.top') || cov; const show = t.getBoundingClientRect().bottom < 8; bar.classList.toggle('show', show); bar.setAttribute('aria-hidden', show ? 'false' : 'true'); document.body.classList.toggle('sb-on', show); };
-window.addEventListener('scroll', onScroll, {passive:true}); window.addEventListener('resize', onScroll); onScroll();
+/* sticky header: handled by header.js */
 }
