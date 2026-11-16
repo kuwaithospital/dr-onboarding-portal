@@ -6,7 +6,7 @@ window.KH_CONFIG = {
   /* Power Automate "When an HTTP request is received" URLs
      (open each flow → click the trigger → copy HTTP URL) */
   flows: {
-    requestCode: "PASTE-PO-2-HTTP-URL-HERE",   // PO-2 Request code
+    requestCode: "https://default7571e4919c534562a9b1e1b1091538.7e.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/18/workflows/412d033b02754d258ec06d2ddfbccd1d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ZRFzomWbkgz7_hB84wbVVSKebvG8-jToSLxtVAAbAl8",   // PO-2 Request code
     verifyCode:  "",                           // PO-3 Verify code  (next)
     submit:      ""                            // PO-4 Submit form  (after PO-3)
   },
