@@ -22,7 +22,7 @@ window.KH_CONFIG = {
 
   /* SharePoint site and lists */
   sharepoint: {
-    host: "kuwaithospital.sharepoint.com",        // check against your SharePoint address
+    host: "kwh.sharepoint.com",
     sitePath: "/sites/PhysicianOnboarding",
     invitees: "Onboarding Invitees",
     submissions: "Physician Submissions"
