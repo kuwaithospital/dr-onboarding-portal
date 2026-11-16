@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onboarding Staff Page – Kuwait Hospital</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="logo-navy.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+main.wide{max-width:1000px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{max-width:320px}
+.toolbar .sp{flex:1}
+.toolbar a.btn{text-decoration:none;min-height:44px;font-size:15px;padding:0 16px}
+.count{font-size:14px;color:var(--muted)}
+.loading{padding:28px 22px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<header class="cover">
+ <div class="top">
+  <img src="logo-white.png" alt="Kuwait Hospital">
+  <div class="sep"></div>
+  <div>
+   <h1>Onboarding staff page</h1>
+   <div class="ar" lang="ar" dir="rtl">تسجيل الأطباء الجدد – صفحة الموظفين</div>
+   <div class="date" id="today"></div>
+  </div>
+ </div>
+</header>
+
+<main class="wide">
+ <div class="gate" id="sLogin">
+  <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M12 13.5V16"/></svg></div>
+  <h2>Staff sign-in</h2>
+  <p>This page is only for Kuwait Hospital staff authorized by the IT administrator. Sign in with your hospital Microsoft 365 account.</p>
+  <button class="btn" type="button" id="msBtn" style="margin-top:0"><span class="spin"></span><span>Sign in with Microsoft 365</span></button>
+  <div class="alert err" id="sErr"></div>
+ </div>
+
+ <div id="sApp" style="display:none">
+  <div class="who"><span class="av" id="meAv"></span><span><b id="meN"></b><br><span style="color:var(--muted)" id="meE"></span></span><span class="role" id="meR"></span><button class="btn ghost" type="button" id="outBtn">Sign out</button></div>
+
+  <div class="toolbar">
+   <input type="text" id="search" placeholder="Search name or email" aria-label="Search invitees">
+   <span class="count" id="count"></span>
+   <span class="sp"></span>
+   <a class="btn ghost" id="spLink" href="#" target="_blank" rel="noopener">Open SharePoint</a>
+   <a class="btn ghost" id="entraLink" href="https://entra.microsoft.com/#view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/AppAppsPreview" target="_blank" rel="noopener" style="display:none">Manage access</a>
+   <button class="btn ghost" type="button" id="refresh" style="min-height:44px;font-size:15px;padding:0 16px">Refresh</button>
+  </div>
+
+  <div class="hr">
+   <form class="bar2" id="fInv" novalidate>
+    <div><label for="invN">Doctor's name</label><input type="text" id="invN" placeholder="Dr. Full Name"></div>
+    <div><label for="invE">Email (KH or private)</label><input type="text" id="invE" placeholder="name@gmail.com"></div>
+    <button class="btn" type="submit" id="invBtn"><span class="spin"></span><span>Register and send invite</span></button>
+    <div class="alert info" id="invOk" style="flex-basis:100%;margin-top:0"></div>
+    <div class="alert err" id="invErr" style="flex-basis:100%;margin-top:0"></div>
+   </form>
+   <table class="stack"><thead><tr><th>Doctor</th><th>Email</th><th>Registered</th><th>Status</th><th></th></tr></thead><tbody id="invRows"></tbody></table>
+   <div class="loading" id="loading">Loading…</div>
+   <div class="hint2">Only emails listed here can receive a code. The invitation email goes out automatically within a minute. "Submitted" doctors can't open the form again.</div>
+  </div>
+ </div>
+</main>
+<footer>Kuwait Hospital · مستشفى الكويت</footer>
+<script src="config.js"></script>
+<script src="vendor/msal-browser.min.js"></script>
+<script src="hr.js"></script>
+</body>
+</html>

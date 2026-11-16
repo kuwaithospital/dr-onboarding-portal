@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New Physician Onboarding – Kuwait Hospital</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="logo-navy.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sbar" id="sbar" aria-hidden="true"><div class="in"><img src="logo-white.png" alt=""><span class="sep"></span><b>New Physician Onboarding</b><span class="ar" lang="ar" dir="rtl">نموذج تسجيل الأطباء الجدد</span><span class="who" id="sbWho"></span></div></div>
+<header class="cover">
+ <div class="top">
+  <img src="logo-white.png" alt="Kuwait Hospital">
+  <div class="sep"></div>
+  <div>
+   <h1>New Physician Onboarding</h1>
+   <div class="ar" lang="ar" dir="rtl">نموذج تسجيل الأطباء الجدد</div>
+   <div class="date" id="today"></div>
+  </div>
+ </div>
+</header>
+<main>
+<div class="gate" id="gEmail">
+  <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+  <h2>Verify your email</h2>
+  <p>Enter the email address HR registered for your onboarding. We'll send you a 6-digit code to open the form.</p>
+  <form id="fEmail" novalidate>
+   <label for="em" style="font-weight:500;display:block;margin-bottom:4px">Email address</label>
+   <input type="text" id="em" inputmode="email" autocomplete="email" placeholder="name@example.com">
+   <div class="alert err" id="emErr"></div>
+   <button class="btn" type="submit" id="sendBtn"><span class="spin"></span><span>Send code</span></button>
+  </form>
+ </div>
+
+ <div class="gate" id="gCode" style="display:none">
+  <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+  <h2>Enter your code</h2>
+  <p id="codeMsg"></p>
+  <form id="fCode" novalidate>
+   <div class="otp" id="otp">
+    <input inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code"><input inputmode="numeric" maxlength="1" aria-label="Digit 2"><input inputmode="numeric" maxlength="1" aria-label="Digit 3"><input inputmode="numeric" maxlength="1" aria-label="Digit 4"><input inputmode="numeric" maxlength="1" aria-label="Digit 5"><input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+   </div>
+   <div class="alert err" id="codeErr"></div>
+   <button class="btn" type="submit" id="verBtn"><span class="spin"></span><span>Verify and open form</span></button>
+  </form>
+  <div class="foot"><span id="exp"></span><button class="link" id="resend" type="button" disabled>Resend code</button></div>
+  <div class="foot" style="margin-top:0"><button class="link" id="chg" type="button">Use a different email</button></div>
+ </div>
+
+ <div id="formWrap" style="display:none">
+ <div class="session" id="sess"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg><span>Verified as <b id="sessEm"></b></span></div>
+ <div class="intro" style="margin-top:14px">
+  <p><strong style="color:var(--ink)">Welcome to Kuwait Hospital!</strong> Please complete this intake form and upload your credentials. This information is used by HR, IT, Marketing, Call Centre, and Nursing to configure your hospital profile, website listing, and clinical systems.</p>
+  <div class="chips"><span>HR</span><span>IT</span><span>Marketing</span><span>Call Centre</span><span>Nursing</span></div>
+ </div>
+
+ <form id="f" novalidate>
+ <div class="prog"><div class="row"><span>Required fields completed</span><span id="pct">0 of 0</span></div><div class="bar"><i id="pbar"></i></div></div>
+
+ <section class="card">
+  <div class="sh"><b>1</b><h2>Professional identification<small>Who you are and your licence</small></h2></div>
+  <div class="body">
+   <div class="q" data-req>
+    <label for="nameEn">Full name (English)<span class="req">*</span></label>
+    <input type="text" id="nameEn" name="fullNameEn" autocomplete="name" placeholder="e.g. Dr. Ahmed Al-Sabah">
+    <div class="msg">Please enter your full name in English.</div>
+   </div>
+   <div class="q" data-req>
+    <label for="nameAr">Full name (Arabic)<span class="req">*</span></label>
+    <input type="text" id="nameAr" name="fullNameAr" lang="ar" dir="rtl" placeholder="الاسم الكامل باللغة العربية">
+    <div class="msg">Please enter your full name in Arabic.</div>
+   </div>
+   <div class="q" data-req>
+    <label for="spec">Primary specialty and subspecialty<span class="req">*</span></label>
+    <input type="text" id="spec" name="specialty" placeholder="e.g. Cardiology – Interventional Cardiology">
+    <div class="msg">Please enter your specialty.</div>
+   </div>
+   <div class="q" data-req data-radio="designation">
+    <div class="lbl" id="desL">Professional designation<span class="req">*</span></div>
+    <div class="pills" role="radiogroup" aria-labelledby="desL">
+     <label><input type="radio" name="designation" value="Consultant"><span>Consultant</span></label>
+     <label><input type="radio" name="designation" value="Senior Specialist"><span>Senior Specialist</span></label>
+     <label><input type="radio" name="designation" value="Specialist"><span>Specialist</span></label>
+     <label><input type="radio" name="designation" value="Registrar"><span>Registrar</span></label>
+     <label><input type="radio" name="designation" value="GP"><span>GP</span></label>
+    </div>
+    <div class="msg">Please choose your designation.</div>
+   </div>
+   <div class="q" data-file="licence" data-max="1" data-types="word,pdf,image">
+    <div class="lbl">Official medical licence copy <span class="opt">(optional)</span></div>
+    <div class="drop"><input type="file" id="licence" accept=".pdf,.doc,.docx,image/*" aria-label="Upload medical licence">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload file</strong><small>1 file · up to 10 MB · Word, PDF or image</small></div>
+    <ul class="files"></ul><div class="msg"></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="card">
+  <div class="sh"><b>2</b><h2>Qualifications and experience<small>Your training and certificates</small></h2></div>
+  <div class="body">
+   <div class="q" data-req data-num>
+    <label for="years">Total years of experience<span class="req">*</span></label>
+    <input type="number" id="years" name="yearsExperience" min="0" max="70" step="1" inputmode="numeric" placeholder="e.g. 12" style="max-width:200px">
+    <div class="msg">The value must be a number.</div>
+   </div>
+   <div class="q" data-req>
+    <label for="qual">Qualifications list<span class="req">*</span></label>
+    <p class="hint">List your degrees, board certifications, and fellowships starting from and including your Bachelor's degree.</p>
+    <textarea id="qual" name="qualifications" placeholder="MBBS – Kuwait University, 2008&#10;Arab Board of Internal Medicine, 2014&#10;Fellowship in Cardiology – …"></textarea>
+    <div class="msg">Please list your qualifications.</div>
+   </div>
+   <div class="q" data-req data-file="certificates" data-max="10" data-types="any" data-msg="Please upload at least one certificate.">
+    <div class="lbl">Certificates and board certificates<span class="req">*</span></div>
+    <div class="drop"><input type="file" id="certificates" multiple aria-label="Upload certificates">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload files</strong><small>Up to 10 files · 10 MB each · Word, Excel, PPT, PDF, image, video, audio</small></div>
+    <ul class="files"></ul><div class="msg">Please upload at least one certificate.</div>
+   </div>
+   <div class="q" data-req data-file="resume" data-max="1" data-types="word,pdf" data-msg="Please upload your resume (CV).">
+    <div class="lbl">Resume / CV<span class="req">*</span></div>
+    <p class="hint">Your latest curriculum vitae, including work history and current position.</p>
+    <div class="drop"><input type="file" id="resume" accept=".pdf,.doc,.docx" aria-label="Upload resume or CV">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload file</strong><small>1 file · up to 10 MB · Word or PDF</small></div>
+    <ul class="files"></ul><div class="msg">Please upload your resume (CV).</div>
+   </div>
+  </div>
+ </section>
+
+ <section class="card">
+  <div class="sh"><b>3</b><h2>Marketing, profile and social media<small>How we introduce you to patients</small></h2></div>
+  <div class="body">
+   <div class="q" data-req>
+    <label for="svc">Key services to highlight<span class="req">*</span></label>
+    <p class="hint">Services you want featured on your Know Your Doctor posts, hospital screens, flyers, and website profile.</p>
+    <textarea id="svc" name="keyServices"></textarea>
+    <div class="msg">Please list the services to highlight.</div>
+   </div>
+   <div class="q">
+    <label for="sym">Symptoms treated <span class="opt">(optional)</span></label>
+    <p class="hint">List key medical symptoms or conditions you treat to improve website search visibility.</p>
+    <textarea id="sym" name="symptoms"></textarea>
+   </div>
+   <div class="q" data-req data-num>
+    <label for="minAge">Minimum patient age<span class="req">*</span></label>
+    <p class="hint">The youngest patient age you see, in years. Enter 0 if you see all ages. Used by the Call Centre when booking appointments.</p>
+    <div style="display:flex;align-items:center;gap:10px"><input type="number" id="minAge" name="minPatientAge" min="0" max="120" step="1" inputmode="numeric" placeholder="e.g. 14" style="max-width:200px"><span style="color:var(--muted)">years</span></div>
+    <div class="msg">The value must be a number (0 for all ages).</div>
+   </div>
+   <div class="q" data-req>
+    <label for="lang">Languages spoken<span class="req">*</span></label>
+    <p class="hint">Languages you are fluent in to assist international patients.</p>
+    <input type="text" id="lang" name="languages" placeholder="e.g. Arabic, English, Hindi">
+    <div class="msg">Please list the languages you speak.</div>
+   </div>
+   <div class="q">
+    <label for="soc">Social media accounts <span class="opt">(optional)</span></label>
+    <p class="hint">Add your social media handles (Instagram, TikTok, Twitter).</p>
+    <input type="text" id="soc" name="socialMedia" placeholder="Instagram @dr.name · TikTok @dr.name">
+   </div>
+   <div class="q" data-req data-three>
+    <div class="lbl">Top 3 services<span class="req">*</span></div>
+    <p class="hint">Three core services to highlight in your broadcast announcement artwork.</p>
+    <div class="three">
+     <div><em>Service 1</em><input type="text" name="top1" aria-label="Top service 1"></div>
+     <div><em>Service 2</em><input type="text" name="top2" aria-label="Top service 2"></div>
+     <div><em>Service 3</em><input type="text" name="top3" aria-label="Top service 3"></div>
+    </div>
+    <div class="msg">Please enter all three services.</div>
+   </div>
+   <div class="q" data-file="patientContacts" data-max="5" data-types="any">
+    <div class="lbl">Previous patients contacts <span class="opt">(optional)</span></div>
+    <p class="hint">Upload an Excel/CSV file with contact numbers if you wish to notify previous patients.</p>
+    <div class="drop"><input type="file" id="patientContacts" multiple accept=".xlsx,.xls,.csv,.doc,.docx,.pdf,.ppt,.pptx,image/*" aria-label="Upload patient contacts">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+     <strong>Upload files</strong><small>Up to 5 files · 10 MB each</small></div>
+    <ul class="files"></ul><div class="msg"></div>
+   </div>
+  </div>
+ </section>
+
+ <div class="alert err" id="subErr" style="margin-top:16px"></div>
+ <div class="actions">
+  <p>By submitting, you confirm the information is accurate. Your details are shared only with Kuwait Hospital departments.</p>
+  <button class="btn" type="submit" id="go"><span class="spin"></span><span id="goT">Submit onboarding form</span></button>
+ </div>
+ </form>
+
+ <div class="done" id="done">
+  <div class="tick"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></div>
+  <h2 id="tyH">Thank you</h2>
+  <div class="ar" lang="ar" dir="rtl" style="font-size:20px;color:var(--accent);margin-bottom:6px">شكراً لك، أهلاً بك في مستشفى الكويت</div>
+  <p style="margin:0 auto;color:var(--muted);max-width:520px">Your onboarding form has been received. Welcome to the Kuwait Hospital family, and we look forward to working with you.</p>
+  <div class="ref" id="ref"></div>
+  <div class="next">
+   <h3>What happens next</h3>
+   <ol>
+    <li><span><b>HR</b> reviews your licence and certificates and contacts you if anything is missing.</span></li>
+    <li><span><b>IT</b> creates your hospital account and access to clinical systems.</span></li>
+    <li><span><b>Marketing</b> prepares your doctor profile, website listing and announcement artwork.</span></li>
+    <li><span><b>Call Centre and Nursing</b> add you to clinic schedules so patients can book with you.</span></li>
+   </ol>
+  </div>
+  <div class="mailnote"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span>A confirmation with your reference number has been sent to <b id="tyMail"></b>. This link is now closed for your email.</span></div>
+  <details class="sumd"><summary>View what you submitted</summary><dl class="sum" id="sum"></dl></details>
+ </div>
+ </div>
+</main>
+<footer>Kuwait Hospital · مستشفى الكويت</footer>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
