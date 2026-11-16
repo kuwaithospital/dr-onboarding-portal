@@ -18,7 +18,7 @@ $('#today').textContent = new Date().toLocaleDateString('en-GB', {day:'numeric',
 
 /* ---------- calls to Power Automate ---------- */
 async function post(url, body) {
-  if (!url) throw new Error('not-configured');
+  if (!url || !/^https:\/\//.test(url)) throw new Error('not-configured');
   const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
   let json = {};
   try { json = await r.json(); } catch (_) {}
@@ -41,7 +41,7 @@ if (prefill && emailOK(prefill)) $('#em').value = prefill.trim().toLowerCase();
 
 async function requestCode() {
   const res = await post(FLOWS.requestCode, {email});
-  if (res.status >= 500) throw new Error('server');
+  if (res.status !== 200) throw new Error('server');
 }
 
 function startTimers() {
@@ -65,7 +65,7 @@ $('#fEmail').addEventListener('submit', async e => {
   hideErr(er); busy(b, true);
   email = em;
   try { await requestCode(); }
-  catch (err) { busy(b, false); showErr(er, err.message === 'not-configured' ? CFG_MSG : NET_MSG); return; }
+  catch (err) { busy(b, false); showErr(er, err.message === 'not-configured' ? CFG_MSG : NET_MSG); console.error('Request code failed:', err); return; }
   busy(b, false);
   $('#codeMsg').innerHTML = `If <b style="color:var(--ink)">${esc(em)}</b> is registered for onboarding, a 6-digit code has been sent to it. Check your inbox and spam folder.`;
   clearOtp(); startTimers(); showGate('#gCode'); boxes[0].focus();
@@ -121,6 +121,7 @@ $('#fCode').addEventListener('submit', async e => {
   if (res.status === 429 || j.error === 'locked') showErr(er, 'Too many attempts. Please request a new code.');
   else if (j.error === 'expired') showErr(er, 'This code is invalid or has expired. Please request a new code.');
   else if (typeof j.attemptsLeft === 'number') showErr(er, `Incorrect code. ${j.attemptsLeft} attempt${j.attemptsLeft === 1 ? '' : 's'} left.`);
+  else if (res.status !== 400 && res.status !== 200) showErr(er, `Verification service error (HTTP ${res.status}). Please try again later or contact HR.`);
   else showErr(er, 'Incorrect code. Please try again.');
 });
 
