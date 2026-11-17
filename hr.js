@@ -182,7 +182,8 @@ $('#invRows').addEventListener('click', e => {
 });
 $('#flt').addEventListener('click', e => {
   const b = e.target.closest('button[data-f]'); if (!b) return;
-  filt = b.dataset.f; $$('#flt button').forEach(x => x.classList.toggle('on', x === b)); render();
+  filt = (filt === b.dataset.f && filt !== 'All') ? 'All' : b.dataset.f;
+  $$('#flt button').forEach(x => x.classList.toggle('on', x.dataset.f === filt)); render();
 });
 $('#det').addEventListener('click', async e => {
   const b = e.target.closest('#rvBtn'); if (!b) return;

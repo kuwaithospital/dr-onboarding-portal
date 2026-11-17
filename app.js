@@ -179,7 +179,7 @@ function update() {
   $('#pct').textContent = `${n} of ${reqs.length}`;
   $('#pbar').style.width = (n / reqs.length * 100) + '%';
   /* side panels (large screens) */
-  $('#pN').textContent = n; $('#pT').textContent = reqs.length; $('#pB').style.width = (n / reqs.length * 100) + '%';
+  if ($('#pN')) { $('#pN').textContent = n; $('#pT').textContent = reqs.length; $('#pB').style.width = (n / reqs.length * 100) + '%'; }
   let cur = -1;
   secs.forEach((s, i) => {
     const r = [...s.querySelectorAll('.q[data-req]')], ok = r.every(filled);
@@ -257,7 +257,7 @@ function showDone(d, ref) {
   $('#ref').textContent = ref ? 'Reference ' + ref : '';
   $('#ref').style.display = ref ? '' : 'none';
   $('#tyH').textContent = 'Thank you, ' + d.fullNameEn;
-  $('#tyMail').textContent = email;
+  const tm = $('#tyMail'); if (tm) tm.textContent = email;
   $('#sess').style.display = 'none'; document.body.classList.remove('form-on');
   const who = $('#sbWho'); if (who) who.textContent = '';
   f.style.display = 'none'; $('.intro').style.display = 'none'; $('#done').style.display = 'block';
