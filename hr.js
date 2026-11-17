@@ -30,6 +30,7 @@ const app = new msal.PublicClientApplication({
   cache: {cacheLocation: 'sessionStorage'}
 });
 
+let shown = [];
 let account = null, siteId = '', listId = '', subId = '', items = [], subs = {}, role = '', filt = 'All', selId = '';
 const DAY = 864e5;
 
@@ -61,7 +62,7 @@ async function start() {
   $('#sLogin').style.display = 'none'; $('#sApp').style.display = '';
   const name = account.name || account.username;
   $('#meAv').textContent = ini(name); $('#meN').textContent = name; $('#meE').textContent = account.username; $('#meR').textContent = role; const sbw = $('#sbWho'); if (sbw) sbw.textContent = name + ' · ' + role;
-  $('#entraLink').style.display = role === 'Admin' ? '' : 'none'; $('#qAcc').style.display = role === 'Admin' ? '' : 'none';
+  
   document.body.classList.add('app-on');
   $('#fInv').style.display = role === 'Viewer' ? 'none' : '';
   await load();
@@ -142,12 +143,15 @@ function render() {
   Object.keys(c).forEach(k => { const el = $('#f' + k); if (el) el.textContent = c[k]; });
   const rows = items.filter(i => (filt === 'All' || st.get(i.id) === filt) &&
     (!q || (i.fields.Title || '').toLowerCase().includes(q) || (i.fields.Email || '').toLowerCase().includes(q)));
+  shown = rows;
   $('#count').textContent = `${rows.length} of ${items.length} doctors`;
   $('#invRows').innerHTML = rows.map(i => {
     const f = i.fields, s2 = st.get(i.id), sub = subs[(f.Email || '').toLowerCase()];
     const ref = (sub && sub.fields.Reference) || f.Reference;
-    const act = (s2 === 'Submitted' || role === 'Viewer') ? '' : `<button class="rm" style="color:var(--accent)" type="button" data-id="${esc(i.id)}" aria-label="Resend invite to ${esc(f.Email)}">Resend</button>`;
-    return `<tr data-row="${esc(i.id)}" class="${i.id === selId ? 'sel' : ''}"><td data-l="Doctor">${esc(f.Title)}</td><td data-l="Email">${esc(f.Email)}</td><td data-l="Registered">${fmtD(i.createdDateTime)}</td><td data-l="Status"><span class="st ${s2}">${LABEL[s2]}</span>${ref ? `<br><small style="color:var(--muted)">${esc(ref)}</small>` : ''}</td><td data-l="">${act}</td></tr>`;
+    const canEdit = role !== 'Viewer';
+    const act = (canEdit && s2 !== 'Submitted' ? `<button class="rm" style="color:var(--accent)" type="button" data-id="${esc(i.id)}" title="Resend invitation" aria-label="Resend invite to ${esc(f.Email)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg><span>Resend</span></button>` : '')
+      + (canEdit ? `<button class="rm del" type="button" data-del="${esc(i.id)}" title="Delete" aria-label="Delete ${esc(f.Title)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg><span>Delete</span></button>` : '');
+    return `<tr data-row="${esc(i.id)}" class="${i.id === selId ? 'sel' : ''}"><td data-l="Doctor" title="${esc(f.Title)}">${esc(f.Title)}</td><td data-l="Email" title="${esc(f.Email)}">${esc(f.Email)}</td><td data-l="Registered">${fmtD(i.createdDateTime)}</td><td data-l="Status"><span class="stw"><span class="st ${s2}">${LABEL[s2]}</span>${ref ? `<small title="${esc(ref)}">${esc(ref)}</small>` : ''}</span></td><td data-l="">${act}</td></tr>`;
   }).join('') || `<tr><td colspan="5" style="color:var(--muted)">${items.length ? 'No match.' : 'No doctors registered yet.'}</td></tr>`;
   details();
 }
@@ -176,7 +180,7 @@ function details() {
    : `<p class="empty">${s2 === 'Late' ? 'No reply for more than 48 hours. You can resend the invitation from the list.' : 'The doctor has not submitted the form yet.'}</p>`}`;
 }
 $('#invRows').addEventListener('click', e => {
-  if (e.target.closest('[data-id]')) return;
+  if (e.target.closest('[data-id],[data-del]')) return;
   const tr = e.target.closest('tr[data-row]'); if (!tr) return;
   selId = tr.dataset.row; $$('#invRows tr').forEach(r => r.classList.toggle('sel', r === tr)); details();
 });
@@ -217,12 +221,75 @@ $('#fInv').addEventListener('submit', async e => {
 $('#invRows').addEventListener('click', async e => {
   const b = e.target.closest('[data-id]'); if (!b) return;
   const it = items.find(i => i.id === b.dataset.id); if (!it) return;
-  b.disabled = true; b.textContent = 'Sending…';
+  b.disabled = true; b.title = 'Sending…'; b.style.opacity = '.5';
   try {
     await graph(`/sites/${siteId}/lists/${listId}/items/${it.id}/fields`, {method: 'PATCH', body: JSON.stringify({ResendInvite: true})});
     showErr($('#invOk'), `Invitation will be sent again to <b>${esc(it.fields.Email)}</b> within a minute.`);
-    b.textContent = 'Sent';
-  } catch (x) { showErr($('#invErr'), 'Could not resend: ' + esc(x.message)); b.disabled = false; b.textContent = 'Resend'; }
+    b.title = 'Invitation sent'; b.style.opacity = '1'; b.style.color = 'var(--ok)';
+  } catch (x) { showErr($('#invErr'), 'Could not resend: ' + esc(x.message)); b.disabled = false; b.style.opacity = '1'; }
+});
+
+/* ---------- delete a doctor ---------- */
+$('#invRows').addEventListener('click', async e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  const it = items.find(i => i.id === b.dataset.del); if (!it) return;
+  const f = it.fields, sub = subs[(f.Email || '').toLowerCase()];
+  const msg = `Delete ${f.Title} (${f.Email}) from the invite list?\n\nThe doctor will no longer be able to receive a code or open the form.` +
+    (sub ? '\n\nTheir submitted answers and documents stay in SharePoint.' : '');
+  if (!window.confirm(msg)) return;
+  b.disabled = true;
+  try {
+    await graph(`/sites/${siteId}/lists/${listId}/items/${it.id}`, {method: 'DELETE'});
+    items = items.filter(i => i.id !== it.id);
+    if (selId === it.id) selId = '';
+    render();
+    showErr($('#invOk'), `<b>${esc(f.Title)}</b> was removed from the invite list.`);
+  } catch (x) { b.disabled = false; showErr($('#invErr'), 'Could not delete: ' + esc(x.message)); }
+});
+
+/* ---------- export to Excel (.xlsx, built in the browser) ---------- */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+function zip(files) {
+  const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+  const u16 = n => [n & 255, (n >>> 8) & 255], u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+  for (const [name, text] of files) {
+    const nb = enc.encode(name), db = enc.encode(text), c = crc32(db);
+    const head = [...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(c), ...u32(db.length), ...u32(db.length), ...u16(nb.length), ...u16(0)];
+    parts.push(new Uint8Array(head), nb, db);
+    cen.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(c), ...u32(db.length), ...u32(db.length), ...u16(nb.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(off)]), nb);
+    off += head.length + nb.length + db.length;
+  }
+  const cs = cen.reduce((t, p) => t + p.length, 0);
+  return new Blob([...parts, ...cen, new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cs), ...u32(off), ...u16(0)])],
+    {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+const xe = v => String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+function xlsx(head, rows) {
+  const col = i => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const cell = (v, r, c, s) => `<c r="${col(c)}${r}" t="inlineStr"${s ? ' s="1"' : ''}><is><t xml:space="preserve">${xe(v)}</t></is></c>`;
+  const data = [head, ...rows].map((row, r) => `<row r="${r + 1}">${row.map((v, c) => cell(v, r + 1, c, r === 0)).join('')}</row>`).join('');
+  const widths = head.map((h, c) => Math.min(60, Math.max(h.length, ...rows.map(r => String(r[c] ?? '').length)) + 2));
+  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${data}</sheetData><autoFilter ref="A1:${col(head.length - 1)}${rows.length + 1}"/></worksheet>`;
+  return zip([
+    ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+    ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Physicians" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">Physicians!$A$1:$' + col(head.length - 1) + '$' + (rows.length + 1) + '</definedName></definedNames></workbook>'],
+    ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+    ['xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF212A5F"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'],
+    ['xl/worksheets/sheet1.xml', sheet]
+  ]);
+}
+$('#xlsBtn').addEventListener('click', () => {
+  const head = ['Doctor', 'Email', 'Registered', 'Status', 'Reference', 'Specialty', 'Designation', 'Submitted on', 'Review status'];
+  const rows = shown.map(i => {
+    const f = i.fields, sub = subs[(f.Email || '').toLowerCase()], sf = sub ? sub.fields : {};
+    return [f.Title, f.Email, fmtD(i.createdDateTime), LABEL[stateOf(i)], sf.Reference || f.Reference || '', sf.Specialty || '', sf.Designation || '', sf.SubmittedOn ? fmtDT(sf.SubmittedOn) : '', sf.ReviewStatus || (sub ? 'New' : '')];
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(xlsx(head, rows));
+  a.download = `KH-Physician-Onboarding-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 });
 
 start();

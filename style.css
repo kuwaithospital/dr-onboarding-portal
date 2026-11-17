@@ -286,7 +286,7 @@ body:not(.staff) .hdr .top{max-width:960px}
 .chk li.ok{color:var(--muted)}
 .chk small{display:block;color:var(--muted);font-size:12.5px}
 /* staff page */
-@media(min-width:1400px){
+@media(min-width:1600px){
  .staff .hdr .top{max-width:1640px}
  .staff.app-on main.wide.three-col{max-width:1640px;display:grid;grid-template-columns:260px minmax(0,1fr) 340px;gap:22px;align-items:start}
  .staff.app-on .three-col .side{display:block;position:sticky;top:86px}
@@ -341,7 +341,7 @@ button.stat:hover{border-color:var(--line)}
 button.stat.on{border-color:var(--navy);background:var(--card)}
 button.stat:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pnl .tip{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
-@media(min-width:1400px){
+@media(min-width:1600px){
  .staff.app-on .three-col .side{top:84px;max-height:calc(100vh - 100px);overflow:auto;scrollbar-width:thin}
 }
 /* floating "Need help?" (doctor page) – always visible, bottom-right */
@@ -396,3 +396,59 @@ body:not(.staff) .prog{top:64px}
 @media(max-width:900px){.login{grid-template-columns:1fr}.lg-r{border-radius:28px 28px 0 0;padding:28px 16px 40px}.lg-l{padding:32px 20px}.lg-l h1{margin-top:36px}.lg-l .lead{margin-bottom:32px}.lg-ft{display:none}}
 @media(prefers-reduced-motion:reduce){.login *,.login *::before,.login *::after{animation:none!important}.login .up{opacity:1;transform:none}.step{opacity:1}}
 @media(max-width:600px){.lg-card{padding:26px 22px}.lg-card .ms{padding:0 14px;font-size:15px;white-space:nowrap}}
+.rm.del{color:var(--err);display:inline-flex;align-items:center;gap:4px}
+.rm.del:hover{background:color-mix(in srgb,var(--err) 10%,transparent)}
+#xlsBtn{gap:8px}
+.staff #invRows td[data-l=""]{white-space:nowrap;text-align:right}.staff #invRows td[data-l=""] .rm{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
+/* mobile: status, Resend and Delete on one line */
+@media(max-width:600px){
+ .staff #invRows tr{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+ .staff #invRows td{grid-column:1/-1}
+ .staff #invRows td[data-l="Status"]{grid-column:1}
+ .staff #invRows td[data-l=""]{grid-column:2;padding:4px 14px 4px 0;text-align:right}
+ .staff #invRows td[data-l=""]::before{display:none}
+ .staff #invRows td[data-l=""] .rm{padding:6px 6px}
+}
+.stw{display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px}.stw small{color:var(--muted);font-size:12.5px;white-space:nowrap}
+@media(max-width:600px){.staff #invRows td[data-l="Status"]{padding-right:8px}.staff #invRows td[data-l=""]{padding-left:0}}
+.stw{flex-direction:row;align-items:center;gap:8px;white-space:nowrap}@media(min-width:601px){.staff #invRows td{height:60px}}
+@media(min-width:1021px){.staff #invRows td{white-space:nowrap}}
+/* staff list: fixed columns so every row has the same height */
+@media(min-width:601px){
+ .staff .hr table.stack{table-layout:fixed;width:100%}
+ .staff .hr table.stack th:nth-child(1){width:19%}
+ .staff .hr table.stack th:nth-child(2){width:26%}
+ .staff .hr table.stack th:nth-child(3){width:136px}
+ .staff .hr table.stack th:nth-child(5){width:96px}
+ .staff #invRows td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .staff #invRows td[data-l="Status"]{overflow:hidden}
+ .stw{max-width:100%;overflow:hidden}
+ .stw small{overflow:hidden;text-overflow:ellipsis}
+ .staff #invRows td[data-l=""]{overflow:visible}
+}
+.staff #invRows td[data-l=""]{padding-left:4px;padding-right:12px}
+@media(min-width:0px){
+ .staff #invRows .rm{width:38px;height:38px;min-height:38px;padding:0;justify-content:center;border-radius:10px}
+ .staff #invRows .rm span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .staff #invRows .rm:hover{background:var(--soft)}
+ .staff #invRows .rm.del:hover{background:color-mix(in srgb,var(--err) 10%,transparent)}
+}
+@media(min-width:601px) and (max-width:1020px){.staff .hr table.stack th:nth-child(3),.staff #invRows td[data-l="Registered"]{display:none}}
+@media(max-width:600px){.stw{flex-wrap:wrap;row-gap:2px}.staff #invRows td[data-l="Status"]{overflow:visible}}
+.stw{gap:6px}.stw small{font-size:12px}
+@media(max-width:600px){.stw{flex-wrap:nowrap;max-width:100%;overflow:hidden}.stw small{overflow:hidden;text-overflow:ellipsis;font-size:11.5px}.staff #invRows td[data-l="Status"]{overflow:hidden;min-width:0}.staff #invRows td[data-l=""] .rm{width:34px}}
+/* Resend as a pill (like the status badges); Delete stays an icon */
+.staff #invRows .rm:not(.del){width:auto;height:auto;min-height:0;padding:4px 12px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:12px;font-weight:600;line-height:1.5}
+.staff #invRows .rm:not(.del) svg{display:none}
+.staff #invRows .rm:not(.del) span{position:static;width:auto;height:auto;overflow:visible;clip:auto}
+.staff #invRows .rm:not(.del):hover{background:var(--accent);color:#fff}
+.staff #invRows .rm:not(.del)[disabled]{opacity:.6;cursor:default}
+@media(min-width:601px){.staff .hr table.stack th:nth-child(5){width:132px}}
+@media(max-width:600px){.staff #invRows td[data-l=""] .rm:not(.del){width:auto;padding:4px 12px}}
+@media(min-width:601px) and (max-width:1020px){
+ .staff #invRows .rm:not(.del){width:38px;height:38px;padding:0;background:none;border-radius:10px}
+ .staff #invRows .rm:not(.del) svg{display:block}
+ .staff #invRows .rm:not(.del) span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .staff .hr table.stack th:nth-child(5){width:96px}
+}
+@media(min-width:601px) and (max-width:1020px){.staff .hr table.stack th:nth-child(1){width:25%}.staff .hr table.stack th:nth-child(2){width:35%}}
