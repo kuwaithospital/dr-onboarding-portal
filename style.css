@@ -452,3 +452,8 @@ body:not(.staff) .prog{top:64px}
  .staff .hr table.stack th:nth-child(5){width:96px}
 }
 @media(min-width:601px) and (max-width:1020px){.staff .hr table.stack th:nth-child(1){width:25%}.staff .hr table.stack th:nth-child(2){width:35%}}
+/* "Take photo" button under ID uploads (phones and tablets only) */
+.q .cam{display:none;align-items:center;justify-content:center;gap:8px;margin-top:8px;min-height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-weight:600;font-size:15px;cursor:pointer;position:relative}
+.cam input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cam:active{background:var(--soft)}
+@media(pointer:coarse){.q .cam{display:flex}}

@@ -128,7 +128,7 @@ $('#fCode').addEventListener('submit', async e => {
 
 /* ---------- step 3: the form ---------- */
 const f = $('#f');
-const store = {licence:[], goodStanding:[], education:[], certificates:[], experience:[], resume:[], patientContacts:[]};
+const store = {licence:[], goodStanding:[], civilIdCopy:[], passportCopy:[], education:[], certificates:[], experience:[], resume:[], patientContacts:[]};
 const extOK = {word:/\.(docx?|rtf)$/i, pdf:/\.pdf$/i, image:/\.(png|jpe?g|gif|bmp|webp|heic|tiff?)$/i};
 const allowed = (name, types) => types === 'any' || types.split(',').some(t => extOK[t].test(name));
 const size = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
@@ -153,8 +153,8 @@ function addFiles(q, list) {
   update();
 }
 $$('[data-file]').forEach(q => {
-  const inp = q.querySelector('input[type=file]'), drop = q.querySelector('.drop');
-  inp.addEventListener('change', () => { addFiles(q, inp.files); inp.value = ''; });
+  const drop = q.querySelector('.drop');
+  q.querySelectorAll('input[type=file]').forEach(inp => inp.addEventListener('change', () => { addFiles(q, inp.files); inp.value = ''; }));
   ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, () => drop.classList.remove('over')));
   drop.addEventListener('drop', e => { e.preventDefault(); addFiles(q, e.dataTransfer.files); });
@@ -226,7 +226,7 @@ f.addEventListener('submit', async e => {
   const btn = $('#go'); busy(btn, true); $('#goT').textContent = 'Uploading, please wait…';
   let res;
   try {
-    const FOLDERS = {licence:'Licence', goodStanding:'Good Standing', education:'Education', certificates:'Certificates', experience:'Experience', resume:'Resume', patientContacts:'Patient Contacts'};
+    const FOLDERS = {licence:'Licence', goodStanding:'Good Standing', civilIdCopy:'Civil ID', passportCopy:'Passport', education:'Education', certificates:'Certificates', experience:'Experience', resume:'Resume', patientContacts:'Patient Contacts'};
     const files = [];
     for (const k of Object.keys(FOLDERS)) (await pack(k)).forEach(x => files.push({folder: FOLDERS[k], ...x}));
     const body = {token, ...data, top3Services: data.top3Services.filter(Boolean).join('; '), files};
@@ -248,7 +248,7 @@ f.addEventListener('submit', async e => {
 function showDone(d, ref) {
   const fl = k => store[k].length ? store[k].map(x => x.name).join('\n') : '—';
   const rows = [['Name (English)', d.fullNameEn], ['Name (Arabic)', d.fullNameAr], ['Specialty', d.specialty], ['Designation', d.designation],
-    ['Civil ID number', d.civilId || '—'], ['Passport number', d.passportNumber],
+    ['Civil ID number', d.civilId || '—'], ['Civil ID copy', fl('civilIdCopy')], ['Passport number', d.passportNumber], ['Passport copy', fl('passportCopy')],
     ['Years of experience', d.yearsExperience], ['Minimum patient age', d.minPatientAge === 0 ? 'All ages' : d.minPatientAge + ' years'],
     ['Languages', d.languages], ['Top 3 services', d.top3Services.join(' · ')],
     ['Medical licence', fl('licence')], ['Good Standing', fl('goodStanding')], 
